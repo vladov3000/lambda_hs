@@ -13,10 +13,19 @@ parse parseTokens s = do
   (rest, result) <- parseTokens tokens
   if null rest then Just result else Nothing
 
+parseSourcePath :: [String] -> IO String
+parseSourcePath arguments =
+  case arguments of
+    [] -> do
+      putStrLn "Expected exactly one argument.\nUsage: lambda_hs SOURCE_PATH\n"
+      exitFailure
+    (path : _) -> pure path
+
 main :: IO ()
 main = do
   args <- getArgs
-  source <- readFile $ head args
+  sourcePath <- parseSourcePath args
+  source <- readFile sourcePath
   case parse Module.parseTokens source of
     Just mod -> case Module.execute mod of
       Just term -> print term
